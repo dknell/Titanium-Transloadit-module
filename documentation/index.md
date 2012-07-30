@@ -40,9 +40,9 @@ The transloadit variable is a reference to the TiTransloaditClient object. This 
 
 Takes one argument, an object that contains the following parameters:
 
-* **authkey** *		(string) Your Auth Key from the [credentials](https://transloadit.com/accounts/credentials) page
+* **authkey** *			(string) Your Auth Key from the [credentials](https://transloadit.com/accounts/credentials) page
 
-* **authsecret** *	(string) Your Auth Secret from the [credentials](https://transloadit.com/accounts/credentials) page
+* **authsecret** *		(string) Your Auth Secret from the [credentials](https://transloadit.com/accounts/credentials) page
 	
 (* = REQUIRED)
 
@@ -62,13 +62,15 @@ Takes one argument, an object that contains the following parameters:
 
 * **type** *			(string) The MIME type (ie. image/jpeg)
 
-* **templateId** *	(string) The Template ID from the [templates](https://transloadit.com/templates) page
+* **templateId** *		(string) The Template ID from the [templates](https://transloadit.com/templates) page
+
+* **params** 			(object) Allows you to pass in additional assembly logic - see the [passing fields and variables](https://transloadit.com/docs/passing-fields-and-variables-into-templates) page
 
 * **onload** 			(function) The callback function that is called when upload is complete
 
-* **onerror** 		(function) The callback function that is called if error occurs
+* **onerror** 			(function) The callback function that is called if error occurs
 
-* **onsendstream** 	(function) The callback function that is called during upload stream
+* **onsendstream** 		(function) The callback function that is called during upload stream
 
 (* = REQUIRED)
 
@@ -78,13 +80,15 @@ Takes one argument, an object that contains the following parameters:
 
 Takes one argument, an object that contains the following parameters:
 
-* **templateId** *	(string) The Template ID from the [templates](https://transloadit.com/templates) page
+* **templateId** *		(string) The Template ID from the [templates](https://transloadit.com/templates) page
+
+* **params** 			(object) Allows you to pass in additional assembly logic - see the [passing fields and variables](https://transloadit.com/docs/passing-fields-and-variables-into-templates) page
 
 * **onload** 			(function) The callback function that is called when upload is complete
 
-* **onerror** 		(function) The callback function that is called if error occurs
+* **onerror** 			(function) The callback function that is called if error occurs
 
-* **onsendstream** 	(function) The callback function that is called during upload stream
+* **onsendstream** 		(function) The callback function that is called during upload stream
 
 (* = REQUIRED)
 

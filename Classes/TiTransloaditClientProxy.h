@@ -11,6 +11,7 @@
 {
 	NSString *templateId;
 	NSString *authSecret;
+	NSDictionary *paramDict;
 	TransloaditRequest *transload;
 	KrollCallback *successCallback;
     KrollCallback *errorCallback;

@@ -12,6 +12,8 @@
 #import "TiUtils.h"
 #import "TiBlob.h"
 #import "TiFilesystemFileProxy.h"
+#import "JSON/SBJson.h" 
+#import "JSON/SBJsonParser.h"
 
 @implementation TiTransloaditClientProxy
 
@@ -33,6 +35,7 @@
     RELEASE_TO_NIL(progressCallback);
     RELEASE_TO_NIL(templateId);
     RELEASE_TO_NIL(authSecret);
+    RELEASE_TO_NIL(paramDict);
     [super dealloc];
 }
 
@@ -87,32 +90,74 @@
 	}
 }
 
+- (void)addParams:(id)params
+{
+	// This must be called after the transload object is initialized
+	if(transload == nil)
+	{
+		NSLog(@"transload is nil");
+		return;
+	}
+	if(params == nil)
+	{
+		NSLog(@"params is nil");
+		return;
+	}
+	
+	if ([params isKindOfClass:[NSDictionary class]]) 
+	{
+		for (id key in params) {
+			[[transload params] setObject:[params objectForKey:key] forKey:key];
+		}
+	}
+	else
+	{
+		NSLog(@"params is not a dictionary: %@", [params class]);
+		return;
+	}
+}
+
 - (void)startUploadFromPicker:(NSDictionary *)info
 {
 	// this will get released in the Transloadit SDK
 	NSString *tempSecret = authSecret;
+	NSString *temp_templateId = [templateId retain];
+	NSDictionary *temp_params = [paramDict retain];
 	
 	transload = [[TransloaditRequest alloc] initWithCredentials:[self valueForUndefinedKey:@"authkey"] secret:tempSecret];
-	[transload setTemplateId:[self valueForUndefinedKey:@"templateId"]];
+	[self addParams:temp_params];
+	[transload setTemplateId:temp_templateId];
 	[transload addPickedFile:info];
 	[transload setNumberOfTimesToRetryOnTimeout:5];
 	[transload setDelegate:self];
 	[transload setUploadProgressDelegate:self];
 	[transload startAsynchronous];
+	
+	[temp_templateId release];
+	[temp_params release];
 }
 
 -(void)setAuthsecret:(id)value
 {
 	// this is called automatically when we run transloadit.createClient() from javascript
 	// we need to retain authsecret because the Transloadit module releases it without taking ownership in it's dealloc method
+	RELEASE_TO_NIL(authSecret);
 	authSecret = [[TiUtils stringValue:value] retain];
 	[self replaceValue:value forKey:@"authsecret" notification:NO];
 }
 
 -(void)setTemplateId:(id)value
 {
-	templateId = [TiUtils stringValue:value];
+	RELEASE_TO_NIL(templateId);
+	templateId = [[TiUtils stringValue:value] retain];
 	[self replaceValue:templateId forKey:@"templateId" notification:NO];
+}
+
+-(void)setParamDict:(id)value
+{
+	RELEASE_TO_NIL(paramDict);
+	paramDict = [value retain];
+	[self replaceValue:paramDict forKey:@"params" notification:NO];
 }
 
 #pragma Public APIs
@@ -134,7 +179,7 @@
 -(void)uploadFile:(id)args
 {
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
-
+	
 	NSMutableDictionary *errMsg = [[NSMutableDictionary alloc] init];
 
 	TiBlob *blob = nil;
@@ -164,11 +209,12 @@
 	NSString *filename = [TiUtils stringValue:[args valueForKey:@"filename"]];
 	NSString *type = [TiUtils stringValue:[args valueForKey:@"type"]];
 	NSString *tempId = [TiUtils stringValue:[args valueForKey:@"templateId"]];
-	
+	NSDictionary *params = [args valueForKey:@"params"];
 	NSString *tempSecret = authSecret;
 	
 	transload = [[TransloaditRequest alloc] initWithCredentials:[self valueForUndefinedKey:@"authkey"] secret:tempSecret];
 	[transload setTemplateId:tempId];
+	[self addParams:params];
 	
 	// determine what was passed as "file"
 	if ([[args valueForKey:@"file"] isKindOfClass:[TiFilesystemFileProxy class]])
@@ -224,7 +270,7 @@
 	[transload setUploadProgressDelegate:self];
 	[transload startAsynchronous];
 	
-	[errMsg release];
+	RELEASE_TO_NIL(errMsg);
 }
 
 /**
@@ -242,10 +288,8 @@
 	ENSURE_SINGLE_ARG_OR_NIL(args,NSDictionary);
 	ENSURE_UI_THREAD(uploadFromGallery,args);
 	
-	// added this to fix zombie crash
-	NSDictionary *_args = [args retain];
-	
 	[self setTemplateId:[TiUtils stringValue:[args valueForKey:@"templateId"]]];
+	[self setParamDict:[args valueForKey:@"params"]];
 	
 	// callbacks
 	RELEASE_TO_NIL(successCallback);
@@ -284,7 +328,7 @@
 - (void)requestFinished:(TransloaditRequest *)transloadRequest
 {
 	NSString *responseStatus = [[NSString alloc] initWithString:@""];
-	NSString *response = [[NSString alloc] initWithString:@""];
+	NSDictionary *response = nil;
 	if([transloadRequest response] != nil)
 	{
 		response = [transloadRequest response];
