@@ -5,6 +5,15 @@
  * Please see the LICENSE included with this distribution for details.
  */
 #import "TiProxy.h"
+#import "TiFile.h"
+#import "TiApp.h"
+#import "TiBase.h"
+#import "TiHost.h"
+#import "TiUtils.h"
+#import "TiBlob.h"
+#import "JSON/SBJson.h"
+#import "JSON/SBJsonParser.h"
+#import <QuartzCore/CALayer.h>
 #import "TransloaditRequest.h"
 
 @interface TiTransloaditClientProxy : TiProxy <UIImagePickerControllerDelegate, UINavigationControllerDelegate>

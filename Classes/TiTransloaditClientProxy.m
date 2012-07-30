@@ -6,14 +6,6 @@
  */
 
 #import "TiTransloaditClientProxy.h"
-#import "TiApp.h"
-#import "TiBase.h"
-#import "TiHost.h"
-#import "TiUtils.h"
-#import "TiBlob.h"
-#import "TiFilesystemFileProxy.h"
-#import "JSON/SBJson.h" 
-#import "JSON/SBJsonParser.h"
 
 @implementation TiTransloaditClientProxy
 
@@ -217,9 +209,9 @@
 	[self addParams:params];
 	
 	// determine what was passed as "file"
-	if ([[args valueForKey:@"file"] isKindOfClass:[TiFilesystemFileProxy class]])
+	if ([[args valueForKey:@"file"] isKindOfClass:[TiFile class]])
 	{
-		// NSLog(@"*** FILE IS CLASS TiFilesystemFileProxy");
+		// NSLog(@"*** FILE IS CLASS TiFile");
 		path = [[args valueForKey:@"file"] description];
 	}
 	else if ([[args valueForKey:@"file"] isKindOfClass:[TiBlob class]])
@@ -234,7 +226,7 @@
 	}
 	else
 	{
-		NSLog(@"File must be of type String, TiBlob, or Ti.Filesystem.File");
+		NSLog(@"File must be of type String, TiBlob, or Ti.Filesystem.File (detected: %@)",[[args valueForKey:@"file"] class]);
 		if (errorCallback!=nil)
 		{
 			[errMsg setObject:@"File must be of type String, TiBlob, or Ti.Filesystem.File" forKey:@"error"];
